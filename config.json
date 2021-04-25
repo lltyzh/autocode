@@ -1,11 +1,9 @@
 {
   "tpl_begin": "{{",
   "tpl_end": "}}",
-  "tpl_exp_begin": "{%",
-  "tpl_exp_end": "%}",
   "projects": [
     {
-      "name": "controller",
+      "name": "default",
       "params": [
         {"name": "model"},
         {"name": "name"},
