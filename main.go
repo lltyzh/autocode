@@ -2,11 +2,11 @@ package main
 
 import (
 	"encoding/json"
+	"errors"
 	"flag"
 	"fmt"
 	"io/ioutil"
 	"os"
-	"path/filepath"
 	"strings"
 	"template/core"
 	"template/utils"
@@ -54,40 +54,40 @@ func main() {
 	//是否可覆盖
 	var cover *bool
 	cover = flag.Bool("cover", false, "是否覆盖")
-	//载入参数
+	//载入参数,这里需要转换一下，方便之后的调用
+	paramsTem := map[string]*string{}
 	for _, param := range project.Params {
-		params[param.Name] = *flag.String(param.Name, "v", "u")
+		paramsTem[param.Name] = flag.String(param.Name, param.Default, param.Des)
 	}
 	flag.Parse()
-
+	for k, v := range paramsTem {
+		params[k] = *v
+	}
+	//验证参数
+	for _, param := range project.Params {
+		if param.Verify == "required" && params[param.Name] == "" {
+			panic(errors.New("参数：" + param.Name + "不能为空"))
+		}
+	}
 	//保存模板结果
 	results := map[string]string{}
 	for _, template := range project.Templates {
-		isDir, filterStr, err := utils.IsDir(template.File)
+		err := utils.FormatFile(&template)
 		if err != nil {
 			panic(err)
 		}
-		if isDir {
-			template.Filter = filterStr
+		if template.IsDir {
 			//修正下目录，后缀必须是“/”结尾
-			if template.File[len(template.File)-1:] != "/" {
-				template.File += "/"
+			b, e := utils.IsDir(template.SaveFile)
+			if e != nil {
+				fmt.Println("保存位置应该是目录")
+				panic(e)
 			}
-			if template.SaveFile[len(template.SaveFile)-1:] != "/" {
-				template.SaveFile += "/"
+			if b {
+				template.SaveFile = utils.FormatDir(template.SaveFile)
 			}
-			//判断SaveFile是不是也是目录
-			cInfo, cErr := os.Stat(template.SaveFile)
-			if cErr != nil {
-				panic(cErr)
-			}
-			if !cInfo.IsDir() {
-				panic("保存位置应该是目录")
-			}
-			//检查检验结束
 
 			fmt.Println("解析目录文件..." + template.File)
-
 			arr, err := utils.ListFile(template.File, template.Filter)
 			if err != nil {
 				panic(err)
@@ -120,25 +120,52 @@ func main() {
 		}
 	}
 	fmt.Println("模板解析完成，开始解析插入...")
-
-	fmt.Println("开始生成文件...")
-	for file, con := range results {
-		fmt.Println("生成：" + file)
-		_, err := os.Stat(file)
-		if err != nil {
-			if os.IsNotExist(err) {
-				fp, _ := filepath.Split(file)
-				err = os.MkdirAll(fp, 0777)
-				if err != nil {
-					panic(err.Error())
-				}
-			}
+	inserts := map[string]string{}
+	for _, insert := range project.Inserts {
+		if insert.Tag == "" {
+			insert.Tag = config.InsertTag
 		}
-		err = ioutil.WriteFile(file, []byte(con), 0777)
+		if insert.Tag == "" {
+			panic(errors.New("替换标签不能为空"))
+		}
+		err := utils.FormatFile(&insert)
+		if err != nil {
+			fmt.Println("解析插入文件失败：" + insert.File)
+			panic(err)
+		}
+		con, err := utils.ParseFile(insert.Template, &params, config)
 		if err != nil {
 			panic(err)
 		}
-		fmt.Println("生成文件：" + file)
+		if insert.IsDir {
+			lists, err := utils.ListFile(insert.File, insert.Filter)
+			if err != nil {
+				panic(err)
+			}
+			for _, file := range lists {
+				err := core.HandleFile(&inserts, file, insert, con)
+				if err != nil {
+					panic(err)
+				}
+			}
+		} else {
+			err := core.HandleFile(&inserts, insert.File, insert, con)
+			if err != nil {
+				panic(err)
+			}
+
+		}
+	}
+
+	fmt.Println("开始替换文件...")
+	err = utils.ReplaceFile(inserts)
+	if err != nil {
+		panic(err)
+	}
+	fmt.Println("开始生成文件...")
+	err = utils.ReplaceFile(results)
+	if err != nil {
+		panic(err)
 	}
 	fmt.Println("任务结束...")
 }

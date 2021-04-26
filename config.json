@@ -1,19 +1,22 @@
 {
   "tpl_begin": "{{",
   "tpl_end": "}}",
+  "insert_tag":"<!--insert-->",
   "projects": [
     {
       "name": "default",
       "params": [
         {"name": "model"},
-        {"name": "name"},
+        {
+          "name": "name",
+          "verify": "required"
+        },
         {"name": "user"}
       ],
       "insert": [
         {
-          "file":"./update/up.html",
-          "tag": "<-- on -->",
-          "template_string":"yes",
+          "file":"./insert_test/test.html",
+          "template":"./insert_test/insert.html",
           "position":"top"
         }
       ],
