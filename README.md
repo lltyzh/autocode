@@ -29,15 +29,15 @@ GO Template 的初衷就是为了解决此类问题
       ],
       "insert": [//有些项目生成文件的同时，其他地方也要有改动，比如thinkphp的强制路由
         {
-          "file":"./insert_test/test.html",//目标文件
+          "target":"./insert_test/test.html",//目标文件
           "template":"./insert_test/insert.html",//存放模板文件，这里面写替换的内容
           "position":"top"//插入相对于标签的位置，top  bottom left right
         }
       ],
       "template": [//用来生成基础模板
         {
-          "file": "./template_test/test.html",//模板路径，可以是目录也可以是单个文件
-          "save_file": "./save_test/test.html"//目标路径
+          "template": "./template_test/test.html",//模板路径，可以是目录也可以是单个文件
+          "target": "./save_test/test.html"//目标路径
         }
       ]
     }
