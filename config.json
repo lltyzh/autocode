@@ -9,10 +9,18 @@
         {"name": "name"},
         {"name": "user"}
       ],
+      "insert": [
+        {
+          "file":"./update/up.html",
+          "tag": "<-- on -->",
+          "template_string":"yes",
+          "position":"top"
+        }
+      ],
       "template": [
         {
-          "path": "./template_test",
-          "save_path": "./save_test"
+          "file": "./template_test/test.html",
+          "save_file": "./save_test/test.html"
         }
       ]
     }

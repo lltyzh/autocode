@@ -1,210 +1,129 @@
 package main
 
 import (
-	"bytes"
 	"encoding/json"
-	"errors"
 	"flag"
 	"fmt"
-	"html/template"
 	"io/ioutil"
 	"os"
 	"path/filepath"
 	"strings"
+	"template/core"
+	"template/utils"
 )
 
-type Template struct {
-	Path     string `json:"path"`
-	SavePath string `json:"save_path"`
-	File     string `json:"file"`
-	SaveFile string `json:"save_file"`
-}
-type ProjectStruct struct {
-	Name   string `json:"name"`
-	Params []struct {
-		Name    string `json:"name"`
-		Des     string `json:"des"`
-		Default string `json:"default"`
-	}
-	Templates []Template `json:"template"`
-}
+var config = &core.Config{}      //全局配置
+var project = &core.Project{}    //当前项目配置
+var params = map[string]string{} //当前输入参数
 
-type ConfigStruct struct {
-	TplEnd      string          `json:"tpl_end"`
-	TplBegin    string          `json:"tpl_begin"`
-	Projects    []ProjectStruct `json:"projects"`
-}
-
-var Config = &ConfigStruct{}      //全局配置
-var Project = &ProjectStruct{}    //当前项目配置
-var Params = map[string]*string{} //当前输入参数
-
-//解析模板文件
-func ParseFile(filename string) (string, error) {
-	content, err := ioutil.ReadFile(filename)
-	if err != nil {
-		return "", err
-	}
-	con := string(content)
-
-	//模板引擎没法设置标签，这里要进行模拟替换
-	if Config.TplBegin != "{{" {
-		con = strings.Replace(con, "{{", "_{_{_", -1)
-		con = strings.Replace(con, Config.TplBegin, "{{", -1)
-	}
-	if Config.TplEnd != "}}" {
-		con = strings.Replace(con, "}}", "_}_}_", -1)
-		con = strings.Replace(con, Config.TplEnd, "}}", -1)
-	}
-
-	t,err := template.New("impl").Parse(con)
-	if err!=nil{
-		panic(err)
-	}
-	p2 := map[string]string{}
-	for name,val := range Params{
-		p2[name] = *val
-	}
-	var tmplBytes bytes.Buffer
-	t.Execute(&tmplBytes,p2)
-	con = tmplBytes.String()
-
-	//完成后还原原始标签
-	if Config.TplBegin != "{{" {
-		con = strings.Replace(con, "_{_{_", "{{", -1)
-	}
-	if Config.TplEnd != "}}" {
-		con = strings.Replace(con, "_}_}_", "}}", -1)
-	}
-
-	return con, nil
-}
-
-//遍历寻找目录下的模板文件
-func ListFile(dir string) ([]string, error) {
-	s, err := os.Stat(dir)
-	if err != nil {
-		return nil, err
-	}
-	files := []string{}
-	if s.IsDir() {
-
-		if dir[len(dir)-1:] != "/" {
-			dir = dir + "/"
-		}
-		dirs, _ := ioutil.ReadDir(dir)
-		for _, fi := range dirs {
-			if fi.IsDir() {
-				arr, err := ListFile(dir + fi.Name())
-				if err != nil {
-					return nil, err
-				}
-				for _, ele := range arr {
-					files = append(files, ele)
-				}
-			} else {
-				files = append(files, dir+fi.Name())
-			}
-		}
-	} else {
-		return nil, errors.New("无效目录：" + dir)
-	}
-	return files, nil
-}
 func main() {
-
+	//读取配置
 	f, err := ioutil.ReadFile("./config.json")
 	if err != nil {
 		panic(err)
 	}
-	json.Unmarshal(f, Config)
+	err = json.Unmarshal(f, config)
+	if err != nil {
+		panic(err)
+	}
 
-
-
+	//获取当前执行的项目名称
 	currentProjectName := ""
 	arr := os.Args
-	if len(arr)>1{
+	if len(arr) > 1 {
 		currentProjectName = arr[1]
-		if currentProjectName[0:1]=="-"{
+		if currentProjectName[0:1] == "-" {
 			currentProjectName = "default"
 		}
-	}else{
+	} else {
 		currentProjectName = "default"
 	}
 	hasP := false
-	for _,p := range Config.Projects{
-		if p.Name == currentProjectName{
-			Project = &p
+	for _, p := range config.Projects {
+		if p.Name == currentProjectName {
+			project = &p
 			hasP = true
 			break
 		}
 	}
 
-	if hasP==false{
-		panic("找不到项目："+currentProjectName)
+	if hasP == false {
+		panic("找不到项目：" + currentProjectName)
 	}
 
+	//是否可覆盖
 	var cover *bool
-
 	cover = flag.Bool("cover", false, "是否覆盖")
-
-	for _, param := range Project.Params {
-		Params[param.Name] = flag.String(param.Name, "v", "u")
+	//载入参数
+	for _, param := range project.Params {
+		params[param.Name] = *flag.String(param.Name, "v", "u")
 	}
-
 	flag.Parse()
 
-
-	/*
-	configsmap := map[string]ProjectStruct{}
-
-	for _,p := range Config.Projects{
-
-	}
-
-	 */
-
-
+	//保存模板结果
 	results := map[string]string{}
-	for _, template := range Project.Templates {
-		if template.File != "" {
-			con, err := ParseFile(template.File)
+	for _, template := range project.Templates {
+		isDir, filterStr, err := utils.IsDir(template.File)
+		if err != nil {
+			panic(err)
+		}
+		if isDir {
+			template.Filter = filterStr
+			//修正下目录，后缀必须是“/”结尾
+			if template.File[len(template.File)-1:] != "/" {
+				template.File += "/"
+			}
+			if template.SaveFile[len(template.SaveFile)-1:] != "/" {
+				template.SaveFile += "/"
+			}
+			//判断SaveFile是不是也是目录
+			cInfo, cErr := os.Stat(template.SaveFile)
+			if cErr != nil {
+				panic(cErr)
+			}
+			if !cInfo.IsDir() {
+				panic("保存位置应该是目录")
+			}
+			//检查检验结束
+
+			fmt.Println("解析目录文件..." + template.File)
+
+			arr, err := utils.ListFile(template.File, template.Filter)
+			if err != nil {
+				panic(err)
+			}
+			for _, f := range arr {
+				fmt.Println("转换路径...")
+				fmt.Println("let " + f)
+				realFile := strings.Replace(f, template.File, template.SaveFile, -1)
+				fmt.Println("to " + realFile)
+				_, err := os.Lstat(realFile)
+				if !*cover && !os.IsNotExist(err) {
+					fmt.Println("文件已存在：" + realFile)
+				} else {
+					fmt.Println("解析：" + f)
+					con, err := utils.ParseFile(f, &params, config)
+					if err != nil {
+						panic(err)
+					} else {
+						results[realFile] = con
+					}
+				}
+			}
+		} else {
+			fmt.Println("模板是文件，直接解析..." + template.File)
+			con, err := utils.ParseFile(template.File, &params, config)
 			if err != nil {
 				panic(err)
 			}
 			results[template.SaveFile] = con
 		}
-		if template.Path != "" && template.SavePath != "" {
-			if template.Path[len(template.Path)-1:] != "/" {
-				template.Path = template.Path + "/"
-			}
-			if template.SavePath[len(template.SavePath)-1:] != "/" {
-				template.SavePath = template.SavePath + "/"
-			}
-
-			arr, err := ListFile(template.Path)
-			if err != nil {
-				panic(err)
-			}
-			for _, f := range arr {
-				realfile := strings.Replace(f, template.Path, template.SavePath, -1)
-				_, err := os.Lstat(realfile)
-				if !*cover && !os.IsNotExist(err) {
-					fmt.Println("文件已存在：" + realfile)
-				} else {
-					fmt.Println("解析：" + f)
-					con, err := ParseFile(f)
-					if err != nil {
-						panic(err.Error())
-					} else {
-						results[realfile] = con
-					}
-				}
-			}
-		}
 	}
+	fmt.Println("模板解析完成，开始解析插入...")
+
 	fmt.Println("开始生成文件...")
 	for file, con := range results {
+		fmt.Println("生成：" + file)
 		_, err := os.Stat(file)
 		if err != nil {
 			if os.IsNotExist(err) {
@@ -222,5 +141,4 @@ func main() {
 		fmt.Println("生成文件：" + file)
 	}
 	fmt.Println("任务结束...")
-
 }
