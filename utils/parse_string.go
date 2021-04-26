@@ -31,7 +31,10 @@ func ParseString(con string, params *map[string]string, config *core.Config) (st
 	}
 
 	var tmplBytes bytes.Buffer
-	t.Execute(&tmplBytes, params)
+	err = t.Execute(&tmplBytes, params)
+	if err != nil {
+		return "", err
+	}
 	con = tmplBytes.String()
 	//完成后还原原始标签
 	if config.TplBegin != "{{" {

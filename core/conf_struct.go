@@ -2,11 +2,9 @@ package core
 
 type Template struct {
 	BaseTem
-	SaveFile string `json:"save_file"`
 }
 type Insert struct {
 	BaseTem
-	Template string `json:"template"`
 	Position string `json:"position"`
 	Tag      string `json:"tag"`
 }
@@ -36,19 +34,20 @@ type TemInterface interface {
 	SetIsDir(bool)
 }
 type BaseTem struct {
-	File   string `json:"file"`
-	Filter string `json:"filter"`
-	IsDir  bool
+	Template string `json:"template"`
+	Target   string `json:"target"`
+	Filter   string `json:"filter"`
+	IsDir    bool
 }
 
 func (b *BaseTem) SetFile(f string) {
-	b.File = f
+	b.Template = f
 }
 func (b *BaseTem) SetFilter(f string) {
 	b.Filter = f
 }
 func (b *BaseTem) GetFile() string {
-	return b.File
+	return b.Template
 }
 func (b *BaseTem) GetFilter() string {
 	return b.Filter

@@ -2,6 +2,7 @@ package utils
 
 import (
 	"errors"
+	"fmt"
 	"os"
 	"strings"
 	"template/core"
@@ -28,6 +29,7 @@ func IsDir(filename string) (bool, error) {
 func FormatFile(tem core.TemInterface) error {
 	tem.SetFilter("")
 	tem.SetIsDir(false)
+	fmt.Println("读取：" + tem.GetFile())
 	filename := tem.GetFile()
 	f, e := os.Stat(filename)
 	if e != nil {

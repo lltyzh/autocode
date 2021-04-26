@@ -15,15 +15,15 @@
       ],
       "insert": [
         {
-          "file":"./insert_test/test.html",
+          "target":"./insert_test/test.html",
           "template":"./insert_test/insert.html",
           "position":"top"
         }
       ],
       "template": [
         {
-          "file": "./template_test/test.html",
-          "save_file": "./save_test/test.html"
+          "template": "./template_test/test.html",
+          "target": "./save_test/test.html"
         }
       ]
     }

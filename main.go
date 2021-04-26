@@ -72,31 +72,33 @@ func main() {
 	//保存模板结果
 	results := map[string]string{}
 	for _, template := range project.Templates {
+
 		err := utils.FormatFile(&template)
 		if err != nil {
 			panic(err)
 		}
 		if template.IsDir {
 			//修正下目录，后缀必须是“/”结尾
-			b, e := utils.IsDir(template.SaveFile)
+			b, e := utils.IsDir(template.Target)
 			if e != nil {
 				fmt.Println("保存位置应该是目录")
 				panic(e)
 			}
 			if b {
-				template.SaveFile = utils.FormatDir(template.SaveFile)
+				template.Target = utils.FormatDir(template.Target)
 			}
 
-			fmt.Println("解析目录文件..." + template.File)
-			arr, err := utils.ListFile(template.File, template.Filter)
+			fmt.Println("解析目录文件..." + template.Template)
+
+			arr, err := utils.ListFile(template.Template, template.Filter)
 			if err != nil {
 				panic(err)
 			}
 			for _, f := range arr {
 				fmt.Println("转换路径...")
-				fmt.Println("let " + f)
-				realFile := strings.Replace(f, template.File, template.SaveFile, -1)
-				fmt.Println("to " + realFile)
+				//fmt.Println("let " + f)
+				realFile := strings.Replace(f, template.Template, template.Target, -1)
+				//fmt.Println("to " + realFile)
 				_, err := os.Lstat(realFile)
 				if !*cover && !os.IsNotExist(err) {
 					fmt.Println("文件已存在：" + realFile)
@@ -111,12 +113,18 @@ func main() {
 				}
 			}
 		} else {
-			fmt.Println("模板是文件，直接解析..." + template.File)
-			con, err := utils.ParseFile(template.File, &params, config)
-			if err != nil {
-				panic(err)
+			_, err := os.Lstat(template.Template)
+			if !*cover && !os.IsNotExist(err) {
+				fmt.Println("文件已存在：" + template.Template)
+			} else {
+				fmt.Println("模板是文件，直接解析..." + template.Template)
+				con, err := utils.ParseFile(template.Template, &params, config)
+				if err != nil {
+					panic(err)
+				}
+				results[template.Target] = con
 			}
-			results[template.SaveFile] = con
+
 		}
 	}
 	fmt.Println("模板解析完成，开始解析插入...")
@@ -130,7 +138,7 @@ func main() {
 		}
 		err := utils.FormatFile(&insert)
 		if err != nil {
-			fmt.Println("解析插入文件失败：" + insert.File)
+			fmt.Println("解析插入文件失败：" + insert.Template)
 			panic(err)
 		}
 		con, err := utils.ParseFile(insert.Template, &params, config)
@@ -138,7 +146,7 @@ func main() {
 			panic(err)
 		}
 		if insert.IsDir {
-			lists, err := utils.ListFile(insert.File, insert.Filter)
+			lists, err := utils.ListFile(insert.Template, insert.Filter)
 			if err != nil {
 				panic(err)
 			}
@@ -149,7 +157,7 @@ func main() {
 				}
 			}
 		} else {
-			err := core.HandleFile(&inserts, insert.File, insert, con)
+			err := core.HandleFile(&inserts, insert.Template, insert, con)
 			if err != nil {
 				panic(err)
 			}

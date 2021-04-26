@@ -15,7 +15,7 @@ func ListFile(filename string, filter string) ([]string, error) {
 	if err != nil {
 		return nil, err
 	}
-	files := []string{}
+	var files []string
 	if s.IsDir() {
 		if filename[len(filename)-1:] != "/" {
 			filename = filename + "/"
