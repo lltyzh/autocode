@@ -1,6 +1,8 @@
 package main
 
 import (
+	"autocode/core"
+	"autocode/utils"
 	"encoding/json"
 	"errors"
 	"flag"
@@ -8,8 +10,6 @@ import (
 	"io/ioutil"
 	"os"
 	"strings"
-	"template/core"
-	"template/utils"
 )
 
 var config = &core.Config{}      //全局配置
@@ -193,6 +193,6 @@ func main() {
 	}
 
 	fmt.Println("执行插件...")
-	core.HandlePlugs(project.Plugs,currentProjectName,validArgs)
+	core.HandlePlugs(project.Plugs, currentProjectName, validArgs)
 	fmt.Println("任务结束...")
 }

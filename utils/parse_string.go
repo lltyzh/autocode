@@ -1,11 +1,11 @@
 package utils
 
 import (
+	"autocode/core"
+	"autocode/template_func"
 	"bytes"
 	"io/ioutil"
 	"strings"
-	"template/core"
-	"template/template_func"
 	"text/template"
 )
 
