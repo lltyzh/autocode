@@ -34,41 +34,20 @@ GO Template 的初衷就是为了解决此类问题
           "position":"top"//插入相对于标签的位置，top  bottom left right
         }
       ],
-      "template": [//用来生成基础模板
-        {
-          "template": "./template_test/test.html",//模板路径，可以是目录也可以是单个文件
-          "target": "./save_test/test.html"//目标路径
+      "template": [
+        {//目录模板示例
+          "template": "./template_test/",//模板目录，目录下的文件支持语法，比如 {{ .model }}Controller.php
+          "target": "./save_test/"//此时，这里也必须是目录
+        },
+        {//文件模板示例
+          "template": "./template_test/test.html",//模板文件名，不支持模板语法
+          "target": "./save_test/{{ .model }}test.html"//目标路径，支持模板语法
         }
+
       ]
     }
   ]
 }
-```
-### template
-#### 目录模板
-
-```
-      "template": [//用来生成基础模板
-        {
-          "template": "./template_test/",//模板路径，可以是目录也可以是单个文件
-          "target": "./save_test/"//目标路径
-        }
-      ]
-```
-此时，./template_test/ 中的文件名可以使用模板语法，比如  
-- ./template_test/controller{{ .model }}Controller.php  
-- ./template_test/mdoel/{{ .model}}.php  
-使用目录模板时，目标 target 也必须时目录 ，执行后的对应结果  
-- ./save_test/controller/modelController.php  
-- ./save_test/model/model.php  
-#### 文件模板
-```
-      "template": [//用来生成基础模板
-        {
-          "template": "./template_test/test.html",//使用文件模板时，模板文件是正常的文件名，不支持也没必要使用语法
-          "target": "./save_test/{{ .model }}.html"//target 支持模板语法
-        }
-      ]
 ```
 ## 使用
 用法参考，当前目录控制台输入：
