@@ -63,7 +63,6 @@ func main() {
 		paramsTem[param.Name] = flagSet.String(param.Name, param.Default, param.Des)
 	}
 
-	fmt.Println(validArgs)
 	err = flagSet.Parse(validArgs)
 	if err != nil {
 		panic(err)
