@@ -5,6 +5,7 @@ import (
 	"io/ioutil"
 	"strings"
 	"template/core"
+	"template/template_func"
 	"text/template"
 )
 
@@ -25,7 +26,10 @@ func ParseString(con string, params *map[string]string, config *core.Config) (st
 		con = strings.Replace(con, "}}", "_}_}_", -1)
 		con = strings.Replace(con, config.TplEnd, "}}", -1)
 	}
-	t, err := template.New("impl").Parse(con)
+	t, err := template.New("impl").Funcs(template.FuncMap{
+		"hump":   template_func.Hump,
+		"unHump": template_func.UnHump,
+	}).Parse(con)
 	if err != nil {
 		panic(err)
 	}

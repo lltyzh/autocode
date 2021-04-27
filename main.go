@@ -9,6 +9,7 @@ import (
 	"os"
 	"strings"
 	"template/core"
+	"template/template_func"
 	"template/utils"
 )
 
@@ -17,6 +18,8 @@ var project = &core.Project{}    //当前项目配置
 var params = map[string]string{} //当前输入参数
 
 func main() {
+	fmt.Println(template_func.UnHump("AdminGroup"))
+
 	//读取配置
 	f, err := ioutil.ReadFile("./config.json")
 	if err != nil {
@@ -56,7 +59,7 @@ func main() {
 
 	//是否可覆盖
 	var cover *bool
-	cover = flag.Bool("cover", false, "是否覆盖")
+	cover = flagSet.Bool("cover", false, "是否覆盖")
 	//载入参数,这里需要转换一下，方便之后的调用
 	paramsTem := map[string]*string{}
 	for _, param := range project.Params {
@@ -105,9 +108,13 @@ func main() {
 			for _, f := range arr {
 				fmt.Println("转换路径...")
 				//fmt.Println("let " + f)
-				realFile := strings.Replace(f, template.Template, template.Target, -1)
+				realFile, err := utils.ParseString(f, &params, config)
+				if err != nil {
+					panic(err)
+				}
+				realFile = strings.Replace(realFile, template.Template, template.Target, -1)
 				//fmt.Println("to " + realFile)
-				_, err := os.Lstat(realFile)
+				_, err = os.Lstat(realFile)
 				if !*cover && !os.IsNotExist(err) {
 					fmt.Println("文件已存在：" + realFile)
 				} else {
@@ -121,16 +128,20 @@ func main() {
 				}
 			}
 		} else {
-			_, err := os.Lstat(template.Template)
+			realTarget, err := utils.ParseString(template.Target, &params, config)
+			if err != nil {
+				panic(err)
+			}
+			_, err = os.Lstat(realTarget)
 			if !*cover && !os.IsNotExist(err) {
-				fmt.Println("文件已存在：" + template.Template)
+				fmt.Println("文件已存在：" + realTarget)
 			} else {
 				fmt.Println("模板是文件，直接解析..." + template.Template)
 				con, err := utils.ParseFile(template.Template, &params, config)
 				if err != nil {
 					panic(err)
 				}
-				results[template.Target] = con
+				results[realTarget] = con
 			}
 
 		}

@@ -2,3 +2,5 @@
 {{ .model }}
 {{if (eq .model "admin")}}管理员{{end}}
 {{ .user }}
+转驼峰：
+{{ hump .user }}

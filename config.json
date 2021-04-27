@@ -22,8 +22,8 @@
       ],
       "template": [
         {
-          "template": "./template_test/test.html",
-          "target": "./save_test/test.html"
+          "template": "./template_test/",
+          "target": "./save_test/"
         }
       ]
     }
