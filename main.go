@@ -29,11 +29,14 @@ func main() {
 
 	//获取当前执行的项目名称
 	currentProjectName := ""
-	arr := os.Args
-	if len(arr) > 1 {
-		currentProjectName = arr[1]
+	validArgs := os.Args[1:]
+	flagSet := flag.NewFlagSet("main", flag.ContinueOnError)
+	if len(validArgs) > 0 {
+		currentProjectName = validArgs[0]
 		if currentProjectName[0:1] == "-" {
 			currentProjectName = "default"
+		} else {
+			validArgs = validArgs[1:]
 		}
 	} else {
 		currentProjectName = "default"
@@ -48,7 +51,7 @@ func main() {
 	}
 
 	if hasP == false {
-		panic("找不到项目：" + currentProjectName)
+		panic("找不到项目：【" + currentProjectName + "】")
 	}
 
 	//是否可覆盖
@@ -57,12 +60,18 @@ func main() {
 	//载入参数,这里需要转换一下，方便之后的调用
 	paramsTem := map[string]*string{}
 	for _, param := range project.Params {
-		paramsTem[param.Name] = flag.String(param.Name, param.Default, param.Des)
+		paramsTem[param.Name] = flagSet.String(param.Name, param.Default, param.Des)
 	}
-	flag.Parse()
+
+	fmt.Println(validArgs)
+	err = flagSet.Parse(validArgs)
+	if err != nil {
+		panic(err)
+	}
 	for k, v := range paramsTem {
 		params[k] = *v
 	}
+
 	//验证参数
 	for _, param := range project.Params {
 		if param.Verify == "required" && params[param.Name] == "" {
