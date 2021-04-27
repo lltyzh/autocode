@@ -42,14 +42,14 @@ Auto Create 的初衷就是为了解决此类问题
         },
         {"name": "user"}
       ],
-      "insert": [//有些项目生成文件的同时，其他地方也要有改动，比如thinkphp的强制路由
+      "inserts": [//有些项目生成文件的同时，其他地方也要有改动，比如thinkphp的强制路由
         {
           "target":"./insert_test/test.html",//目标文件，文件名不支持变量
           "template":"./insert_test/insert.html",//存放模板文件，这里面写替换的内容,文件名不支持变量
           "position":"top"//插入相对于标签的位置，top  bottom left right
         }
       ],
-      "template": [
+      "templates": [
         {//目录模板示例
           "template": "./template_test/",//模板目录，目录下的文件支持语法，比如 {{ .model }}Controller.php
           "target": "./save_test/"//此时，这里也必须是目录
