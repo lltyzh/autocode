@@ -67,6 +67,6 @@ Auto Code 的初衷就是为了解决此类问题
 ## 使用
 用法参考，当前目录控制台输入：
 ```
-./template.exe -model admin -name test -user user1
+./autocode.exe -model admin -name test -user user1
 ```
-
+linux下使用./autocode即可
