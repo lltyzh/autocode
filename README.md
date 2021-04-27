@@ -12,7 +12,18 @@ GO Template 的初衷就是为了解决此类问题
 本项目使用go语言的template模板引擎  
 使用变量 {{ .model }}  
 转驼峰 {{ hmup .model }}  
-解驼峰 {{ umHmup .model }}
+解驼峰 {{ umHmup .model }}  
+流程控制  
+•   not 非{{if not .condition}} {{end}}  
+•   and 与{{if and .condition1 .condition2}} {{end}}  
+•   or 或{{if or .condition1 .condition2}} {{end}}  
+•   eq 等于{{if eq .var1 .var2}} {{end}}  
+•   ne 不等于{{if ne .var1 .var2}} {{end}}  
+•   lt 小于 (less than){{if lt .var1 .var2}} {{end}}  
+•   le 小于等于{{if le .var1 .var2}} {{end}}  
+•   gt 大于{{if gt .var1 .var2}} {{end}}  
+•   ge 大于等于{{if ge .var1 .var2}} {{end}}  
+
 ## 配置文件
 配置文件：
 
