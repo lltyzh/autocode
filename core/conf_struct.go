@@ -18,8 +18,14 @@ type Project struct {
 	}
 	Templates []Template `json:"templates"`
 	Inserts   []Insert   `json:"inserts"`
+	Plugs []Plug `json:"plugs"`
 }
-
+type Plug struct{
+	Name string `json:"name"`
+	Type string `json:"type"`
+	Commond string `json:"commond"`
+	Params string `json:"params"`
+}
 type Config struct {
 	TplEnd    string    `json:"tpl_end"`
 	TplBegin  string    `json:"tpl_begin"`

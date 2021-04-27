@@ -191,5 +191,8 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
+
+	fmt.Println("执行插件...")
+	core.HandlePlugs(project.Plugs,currentProjectName,validArgs)
 	fmt.Println("任务结束...")
 }

@@ -15,6 +15,14 @@
           "position":"top"
         }
       ],
+      "plugs": [
+        {
+          "name": "php",
+          "type":"shell",
+          "commond":"php",
+          "params":"./plugs/test.php"
+        }
+      ],
       "templates": [
         {
           "template": "./example/template/app",
