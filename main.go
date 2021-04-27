@@ -9,7 +9,6 @@ import (
 	"os"
 	"strings"
 	"template/core"
-	"template/template_func"
 	"template/utils"
 )
 
@@ -18,8 +17,6 @@ var project = &core.Project{}    //当前项目配置
 var params = map[string]string{} //当前输入参数
 
 func main() {
-	fmt.Println(template_func.UnHump("AdminGroup"))
-
 	//读取配置
 	f, err := ioutil.ReadFile("./config.json")
 	if err != nil {

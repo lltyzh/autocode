@@ -16,8 +16,8 @@ type Project struct {
 		Default string `json:"default"`
 		Verify  string `json:"verify"`
 	}
-	Templates []Template `json:"template"`
-	Inserts   []Insert   `json:"insert"`
+	Templates []Template `json:"templates"`
+	Inserts   []Insert   `json:"inserts"`
 }
 
 type Config struct {

@@ -13,14 +13,14 @@
         },
         {"name": "user"}
       ],
-      "insert": [
+      "inserts": [
         {
           "target":"./insert_test/test.html",
           "template":"./insert_test/insert.html",
           "position":"top"
         }
       ],
-      "template": [
+      "templates": [
         {
           "template": "./template_test/",
           "target": "./save_test/"

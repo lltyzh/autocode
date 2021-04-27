@@ -7,14 +7,25 @@ import (
 )
 
 func HandleFile(inserts *map[string]string, file string, insert Insert, con string) error {
-	_, ok := (*inserts)[file]
+	if insert.Tag==""{
+		return nil
+	}
+	_, ok := (*inserts)[insert.Target]
 	if !ok {
-		c, err := ioutil.ReadFile(file)
+		c, err := ioutil.ReadFile(insert.Target)
 		if err != nil {
 			return err
 		}
-		(*inserts)[file] = string(c)
+		if strings.Index(string(c),insert.Tag)==-1{
+			return nil
+		}
+		(*inserts)[insert.Target] = string(c)
 	}
+
+	if strings.Index((*inserts)[insert.Target],con)!=-1{
+		return nil
+	}
+
 	switch insert.Position {
 	case "":
 	case "top":
@@ -32,6 +43,8 @@ func HandleFile(inserts *map[string]string, file string, insert Insert, con stri
 	default:
 		return errors.New("插入位置不支持")
 	}
-	(*inserts)[file] = strings.Replace((*inserts)[file], insert.Tag, con, -1)
+
+
+	(*inserts)[insert.Target] = strings.Replace((*inserts)[insert.Target], insert.Tag, con, -1)
 	return nil
 }
