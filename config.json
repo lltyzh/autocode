@@ -6,24 +6,23 @@
     {
       "name": "default",
       "params": [
-        {"name": "model"},
-        {
-          "name": "name",
-          "verify": "required"
-        },
-        {"name": "user"}
+        {"name": "model","verify":"required"}
       ],
       "inserts": [
         {
-          "target":"./insert_test/test.html",
-          "template":"./insert_test/insert.html",
+          "target":"./example/target/route.php",
+          "template":"./example/template/insert.html",
           "position":"top"
         }
       ],
       "templates": [
         {
-          "template": "./template_test/",
-          "target": "./save_test/"
+          "template": "./example/template/app",
+          "target": "./example/target/app"
+        },
+        {
+          "template": "./example/template/file.html",
+          "target": "./example/target/file/{{ .model }}.html"
         }
       ]
     }
