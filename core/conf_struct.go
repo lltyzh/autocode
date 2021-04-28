@@ -1,5 +1,7 @@
 package core
 
+import "fmt"
+
 type Template struct {
 	BaseTem
 }
@@ -9,8 +11,11 @@ type Insert struct {
 	Tag      string `json:"tag"`
 }
 type Project struct {
-	Name   string `json:"name"`
-	Params []struct {
+	TplEnd    string `json:"tpl_end"`
+	TplBegin  string `json:"tpl_begin"`
+	InsertTag string `json:"insert_tag"`
+	Name      string `json:"name"`
+	Params    []struct {
 		Name    string `json:"name"`
 		Des     string `json:"des"`
 		Default string `json:"default"`
@@ -18,13 +23,13 @@ type Project struct {
 	}
 	Templates []Template `json:"templates"`
 	Inserts   []Insert   `json:"inserts"`
-	Plugs []Plug `json:"plugs"`
+	Plugs     []Plug     `json:"plugs"`
 }
-type Plug struct{
-	Name string `json:"name"`
-	Type string `json:"type"`
+type Plug struct {
+	Name    string `json:"name"`
+	Type    string `json:"type"`
 	Commond string `json:"commond"`
-	Params string `json:"params"`
+	Params  string `json:"params"`
 }
 type Config struct {
 	TplEnd    string    `json:"tpl_end"`
@@ -38,14 +43,35 @@ type TemInterface interface {
 	GetFile() string
 	GetFilter() string
 	SetIsDir(bool)
-}
-type BaseTem struct {
-	Template string `json:"template"`
-	Target   string `json:"target"`
-	Filter   string `json:"filter"`
-	IsDir    bool
+	GetTplEnd() string
+	GetTplBegin() string
 }
 
+type BaseTem struct {
+	TplEnd    string `json:"tpl_end"`
+	TplBegin  string `json:"tpl_begin"`
+	Template  string `json:"template"`
+	Target    string `json:"target"`
+	Condition string `json:"condition"`
+	Filter    string `json:"filter"`
+	IsDir     bool
+}
+
+func (b *BaseTem) IsAllow(params *map[string]string) (bool, error) {
+	if b.Condition == "" {
+		return true, nil
+	}
+	CStr := b.TplBegin + " if " + b.Condition + " " + b.TplEnd + "allow" + b.TplBegin + "end" + b.TplEnd
+	fmt.Println("验证：" + CStr)
+	RStr, err := ParseString(CStr, params, b)
+	if err != nil {
+		panic(err)
+	}
+	if RStr == "allow" {
+		return true, nil
+	}
+	return false, nil
+}
 func (b *BaseTem) SetFile(f string) {
 	b.Template = f
 }
@@ -60,4 +86,10 @@ func (b *BaseTem) GetFilter() string {
 }
 func (b *BaseTem) SetIsDir(bl bool) {
 	b.IsDir = bl
+}
+func (b *BaseTem) GetTplEnd() string {
+	return b.TplEnd
+}
+func (b *BaseTem) GetTplBegin() string {
+	return b.TplBegin
 }

@@ -54,7 +54,18 @@ func main() {
 		panic("找不到项目：【" + currentProjectName + "】")
 	}
 
+	if project.TplBegin == "" {
+		project.TplBegin = config.TplBegin
+	}
+	if project.TplEnd == "" {
+		project.TplEnd = config.TplEnd
+	}
+	if project.InsertTag == "" {
+		project.InsertTag = config.InsertTag
+	}
+
 	//是否可覆盖
+
 	var cover *bool
 	cover = flagSet.Bool("cover", false, "是否覆盖")
 	//载入参数,这里需要转换一下，方便之后的调用
@@ -80,6 +91,21 @@ func main() {
 	//保存模板结果
 	results := map[string]string{}
 	for _, template := range project.Templates {
+		if template.TplBegin == "" {
+			template.TplBegin = project.TplBegin
+		}
+		if template.TplEnd == "" {
+			template.TplEnd = project.TplEnd
+		}
+
+		b, e := template.IsAllow(&params)
+		if e != nil {
+			panic(e)
+		}
+		if !b {
+			fmt.Println("跳过：" + template.Condition)
+			continue
+		}
 
 		err := utils.FormatFile(&template)
 		if err != nil {
@@ -105,7 +131,7 @@ func main() {
 			for _, f := range arr {
 				fmt.Println("转换路径...")
 				//fmt.Println("let " + f)
-				realFile, err := utils.ParseString(f, &params, config)
+				realFile, err := core.ParseString(f, &params, &template)
 				if err != nil {
 					panic(err)
 				}
@@ -116,7 +142,7 @@ func main() {
 					fmt.Println("文件已存在：" + realFile)
 				} else {
 					fmt.Println("解析：" + f)
-					con, err := utils.ParseFile(f, &params, config)
+					con, err := core.ParseFile(f, &params, &template)
 					if err != nil {
 						panic(err)
 					} else {
@@ -125,7 +151,7 @@ func main() {
 				}
 			}
 		} else {
-			realTarget, err := utils.ParseString(template.Target, &params, config)
+			realTarget, err := core.ParseString(template.Target, &params, &template)
 			if err != nil {
 				panic(err)
 			}
@@ -134,7 +160,7 @@ func main() {
 				fmt.Println("文件已存在：" + realTarget)
 			} else {
 				fmt.Println("模板是文件，直接解析..." + template.Template)
-				con, err := utils.ParseFile(template.Template, &params, config)
+				con, err := core.ParseFile(template.Template, &params, &template)
 				if err != nil {
 					panic(err)
 				}
@@ -146,9 +172,31 @@ func main() {
 	fmt.Println("模板解析完成，开始解析插入...")
 	inserts := map[string]string{}
 	for _, insert := range project.Inserts {
-		if insert.Tag == "" {
-			insert.Tag = config.InsertTag
+
+		if insert.TplBegin == "" {
+			insert.TplBegin = project.TplBegin
 		}
+		if insert.TplEnd == "" {
+			insert.TplEnd = project.TplEnd
+		}
+		if insert.Tag == "" {
+			insert.Tag = project.InsertTag
+		}
+
+		fmt.Println("标签：" + insert.TplBegin)
+		b, e := insert.IsAllow(&params)
+		if e != nil {
+			panic(e)
+		}
+		if !b {
+			fmt.Println("跳过：" + insert.Condition)
+			continue
+		}
+
+		if strings.Trim(insert.Tag, " ") == "" {
+			panic("缺少插入标签")
+		}
+
 		if insert.Tag == "" {
 			panic(errors.New("替换标签不能为空"))
 		}
@@ -157,7 +205,7 @@ func main() {
 			fmt.Println("解析插入文件失败：" + insert.Template)
 			panic(err)
 		}
-		con, err := utils.ParseFile(insert.Template, &params, config)
+		con, err := core.ParseFile(insert.Template, &params, &insert)
 		if err != nil {
 			panic(err)
 		}
@@ -187,6 +235,7 @@ func main() {
 		panic(err)
 	}
 	fmt.Println("开始生成文件...")
+
 	err = utils.ReplaceFile(results)
 	if err != nil {
 		panic(err)

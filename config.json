@@ -12,6 +12,7 @@
         {
           "target":"./example/target/route.php",
           "template":"./example/template/insert.html",
+          "condition":"eq .model \"admin\"",
           "position":"top"
         }
       ],

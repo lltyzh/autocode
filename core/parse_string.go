@@ -1,7 +1,6 @@
-package utils
+package core
 
 import (
-	"autocode/core"
 	"autocode/template_func"
 	"bytes"
 	"io/ioutil"
@@ -9,22 +8,22 @@ import (
 	"text/template"
 )
 
-func ParseFile(filename string, params *map[string]string, config *core.Config) (string, error) {
+func ParseFile(filename string, params *map[string]string, i TemInterface) (string, error) {
 	content, err := ioutil.ReadFile(filename)
 	if err != nil {
 		return "", err
 	}
-	return ParseString(string(content), params, config)
+	return ParseString(string(content), params, i)
 }
-func ParseString(con string, params *map[string]string, config *core.Config) (string, error) {
+func ParseString(con string, params *map[string]string, i TemInterface) (string, error) {
 	//模板引擎没法设置标签，这里要进行模拟替换
-	if config.TplBegin != "{{" {
+	if i.GetTplBegin() != "{{" {
 		con = strings.Replace(con, "{{", "_{_{_", -1)
-		con = strings.Replace(con, config.TplBegin, "{{", -1)
+		con = strings.Replace(con, i.GetTplBegin(), "{{", -1)
 	}
-	if config.TplEnd != "}}" {
+	if i.GetTplEnd() != "}}" {
 		con = strings.Replace(con, "}}", "_}_}_", -1)
-		con = strings.Replace(con, config.TplEnd, "}}", -1)
+		con = strings.Replace(con, i.GetTplEnd(), "}}", -1)
 	}
 	t, err := template.New("impl").Funcs(template.FuncMap{
 		"hump":   template_func.Hump,
@@ -41,10 +40,10 @@ func ParseString(con string, params *map[string]string, config *core.Config) (st
 	}
 	con = tmplBytes.String()
 	//完成后还原原始标签
-	if config.TplBegin != "{{" {
+	if i.GetTplBegin() != "{{" {
 		con = strings.Replace(con, "_{_{_", "{{", -1)
 	}
-	if config.TplEnd != "}}" {
+	if i.GetTplEnd() != "}}" {
 		con = strings.Replace(con, "_}_}_", "}}", -1)
 	}
 	return con, nil
