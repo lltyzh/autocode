@@ -1,7 +1,6 @@
-package utils
+package core
 
 import (
-	"autocode/core"
 	"errors"
 	"fmt"
 	"os"
@@ -26,7 +25,7 @@ func IsDir(filename string) (bool, error) {
 	}
 	return f.IsDir(), nil
 }
-func FormatFile(tem core.TemInterface) error {
+func FormatFile(tem TemInterface) error {
 	tem.SetFilter("")
 	tem.SetIsDir(false)
 	fmt.Println("读取：" + tem.GetFile())
