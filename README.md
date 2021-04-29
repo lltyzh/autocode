@@ -66,7 +66,7 @@ Auto Code 用于自定义基础模板，自定义模板参数，快速生成基�
 }
 ```
 ## 使用
-下载测试版：https://gitee.com/guoliangliang/auto-code/releases/v1.0.0-beta1  
+下载测试版：https://gitee.com/guoliangliang/auto-code/releases/v1.0.0-beta2  
 或源码编译  
 用法参考，当前目录控制台输入：
 ```
