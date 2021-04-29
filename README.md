@@ -73,3 +73,7 @@ Auto Code 用于自定义基础模板，自定义模板参数，快速生成基�
 ./autocode.exe -model admin -name test -user user1
 ```
 linux下使用./autocode即可
+## 自行编译  
+go build  
+or  
+go build -ldflags "-s -w"  
