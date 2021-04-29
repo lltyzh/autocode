@@ -65,8 +65,8 @@ func Init() {
 	}
 
 	//是否可覆盖
-
 	canCover = flagSet.Bool("cover", false, "是否覆盖")
+	cover = *canCover
 
 	//载入参数,这里需要转换一下，方便之后的调用
 	paramsTem := map[string]*string{}
@@ -88,8 +88,6 @@ func Init() {
 			panic(errors.New("参数：" + param.Name + "不能为空"))
 		}
 	}
-
-	cover = *canCover
 
 }
 
