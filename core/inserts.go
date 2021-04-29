@@ -22,6 +22,17 @@ func HandleInserts(project *Project, params *map[string]string) map[string]strin
 			insert.Tag = project.InsertTag
 		}
 
+		isDir,err := IsDir(insert.Target)
+		CheckError(err)
+		if isDir{
+			panic("替换暂不支持目录")
+		}
+		isDir,err = IsDir(insert.Template)
+		CheckError(err)
+		if isDir{
+			panic("替换暂不支持目录")
+		}
+
 		fmt.Println("标签：" + insert.TplBegin)
 		b, e := insert.IsAllow(params)
 		if e != nil {
@@ -36,59 +47,56 @@ func HandleInserts(project *Project, params *map[string]string) map[string]strin
 			panic("缺少插入标签")
 		}
 
-		if insert.Tag == "" {
-			panic(errors.New("替换标签不能为空"))
+		//解析插入标签的变量
+		realTag,err := ParseString(insert.Tag,params,&insert)
+		if err!=nil{
+			panic(err)
 		}
-		err := FormatFile(&insert)
+		insert.Tag = realTag
+		fmt.Println("解析后的插入标签")
+		fmt.Println(insert.Tag)
+
+
+		err = FormatFile(&insert)
 		if err != nil {
 			fmt.Println("解析插入文件失败：" + insert.Template)
 			panic(err)
 		}
 		con, err := ParseFile(insert.Template, params, &insert)
+
+		fmt.Println("替换内容：")
+		fmt.Println(con)
+		err = HandleFile(&inserts, insert, con)
 		if err != nil {
 			panic(err)
-		}
-		if insert.IsDir {
-			lists, err := ListFile(insert.Template, insert.Filter)
-			if err != nil {
-				panic(err)
-			}
-			for _, file := range lists {
-				err := HandleFile(&inserts, file, insert, con)
-				if err != nil {
-					panic(err)
-				}
-			}
-		} else {
-			err := HandleFile(&inserts, insert.Template, insert, con)
-			if err != nil {
-				panic(err)
-			}
-
 		}
 	}
 	return inserts
 }
 
-func HandleFile(inserts *map[string]string, file string, insert Insert, con string) error {
+func HandleFile(inserts *map[string]string,insert Insert, con string) error {
 	if insert.Tag == "" {
 		return nil
 	}
-	_, ok := (*inserts)[file]
+	_, ok := (*inserts)[insert.Target]
 	if !ok {
-		c, err := ioutil.ReadFile(file)
+		fmt.Println("读取了新文件",insert.Tag)
+		c, err := ioutil.ReadFile(insert.Target)
 		if err != nil {
 			return err
 		}
-		if strings.Index(string(c), insert.Tag) == -1 {
-			return nil
-		}
-		(*inserts)[file] = string(c)
+		(*inserts)[insert.Target] = string(c)
 	}
 
-	if strings.Index((*inserts)[file], con) != -1 {
+	if strings.Index((*inserts)[insert.Target], insert.Tag) == -1 {
+		fmt.Println("找不到插入标签",insert.Target,insert.Tag)
 		return nil
 	}
+
+	if strings.Index((*inserts)[insert.Target], con) != -1 {
+		return nil
+	}
+
 
 	switch insert.Position {
 	case "":
@@ -108,6 +116,6 @@ func HandleFile(inserts *map[string]string, file string, insert Insert, con stri
 		return errors.New("插入位置不支持")
 	}
 
-	(*inserts)[file] = strings.Replace((*inserts)[file], insert.Tag, con, -1)
+	(*inserts)[insert.Target] = strings.Replace((*inserts)[insert.Target], insert.Tag, con, -1)
 	return nil
 }

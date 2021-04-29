@@ -81,21 +81,21 @@ func Init() {
 	for k, v := range paramsTem {
 		params[k] = *v
 	}
-	cover = *canCover
 
-}
-func CheckParams() {
+	//验证参数
 	for _, param := range project.Params {
 		if param.Verify == "required" && params[param.Name] == "" {
 			panic(errors.New("参数：" + param.Name + "不能为空"))
 		}
 	}
+
+	cover = *canCover
+
 }
+
 func main() {
 	//初始化配置及参数
 	Init()
-	//验证参数
-	CheckParams()
 	//保存模板结果
 	results := core.HandleTemplates(project, &params, cover)
 	fmt.Println("模板解析完成，开始解析插入...")

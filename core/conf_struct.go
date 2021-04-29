@@ -72,6 +72,7 @@ func (b *BaseTem) IsAllow(params *map[string]string) (bool, error) {
 	}
 	return false, nil
 }
+
 func (b *BaseTem) SetFile(f string) {
 	b.Template = f
 }

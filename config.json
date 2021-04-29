@@ -12,7 +12,12 @@
         {
           "target":"./example/target/route.php",
           "template":"./example/template/insert.html",
-          "condition":"eq .model \"admin\"",
+          "condition":"eq .model \"user\"",
+          "position":"top"
+        },{
+          "target":"./example/target/route.php",
+          "template":"./example/template/insert-user.html",
+          "tag": "<!--insert {{ .model }}-->",
           "position":"top"
         }
       ],
