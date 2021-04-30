@@ -32,6 +32,7 @@
       "templates": [
         {
           "template": "./example/template/app",
+          "condition":"eq .model \"admin\"",
           "target": "./example/target/app"
         },
         {
