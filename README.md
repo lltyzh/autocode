@@ -76,7 +76,7 @@ builder 应该是一项通用的工具，100个项目不应该有100个builder
 或源码编译  
 用法参考，当前目录控制台输入
 ```
-./autocode.exe -model admin -name test -user user1
+./autocode.exe -model admin
 ```
 ### 其他项目使用案例：  
 基于thinkphp6+layui的急速开发框架 https://gitee.com/guoliangliang/think-layui-admin/tree/master/autocode  
