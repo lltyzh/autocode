@@ -82,7 +82,7 @@ builder 应该是一项通用的工具，100个项目不应该有100个builder
 基于thinkphp6+layui的急速开发框架 https://gitee.com/guoliangliang/think-layui-admin/tree/master/autocode  
 正在开发的vue3+elementplus前端框架 https://gitee.com/guoliangliang/vue-fast-admin/tree/master/autocode   
 linux下使用./autocode即可  
-## 误操作回复
+## 误操作恢复
 专业的事情交给专业的工具，版本控制推荐使用git，git托管强烈推荐gitee,github除了星星还有啥，慢的一批  
 ## 自行编译  
 go build  
