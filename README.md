@@ -72,13 +72,13 @@ builder 应该是一项通用的工具，100个项目不应该有100个builder
 }
 ```
 ## 使用
-下载测试版：https://gitee.com/guoliangliang/auto-code/releases/v1.0.0-beta2  
+下载：https://gitee.com/guoliangliang/auto-code/attach_files/690213/download/autocode.zip
 或源码编译  
 用法参考，当前目录控制台输入
 ```
 ./autocode.exe -model admin
 ```
-### 其他项目使用案例：  
+### 其他项目使用案例
 基于thinkphp6+layui的急速开发框架 https://gitee.com/guoliangliang/think-layui-admin/tree/master/autocode  
 正在开发的vue3+elementplus前端框架 https://gitee.com/guoliangliang/vue-fast-admin/tree/master/autocode   
 linux下使用./autocode即可  
