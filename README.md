@@ -35,7 +35,7 @@ builder 应该是一项通用的工具，100个项目不应该有100个builder
   "insert_tag":"<!--insert-->",//插入时，插入位置的标识,支持语法，例如：<!-- {{ .model }} -->
   "projects": [
     {
-      //此处也可定义标签，回覆盖全局配置
+      //此处也可定义标签，会覆盖全局配置
       "name": "default",
       "params": [//参数，用法： -model admin -name 控制器 -user 张三
         {"name": "model"},
@@ -56,7 +56,7 @@ builder 应该是一项通用的工具，100个项目不应该有100个builder
       ],
       "templates": [
         {//目录模板示例
-          //此处也可定义标签，回覆盖全局配置
+          //此处也可定义标签，会覆盖全局配置
           "template": "./template_test/",//模板目录，目录下的文件支持语法，比如 {{ .model }}Controller.php
           "target": "./save_test/",//此时，这里也必须是目录
           "condition":""//执行的条件，默认允许执行
