@@ -78,7 +78,10 @@ builder 应该是一项通用的工具，100个项目不应该有100个builder
 ```
 ./autocode.exe -model admin -name test -user user1
 ```
-linux下使用./autocode即可
+其他项目使用案例：
+基于thinkphp6+layui的急速开发框架 https://gitee.com/guoliangliang/think-layui-admin/tree/master/autocode  
+正在开发的vue3+elementplus前端框架 https://gitee.com/guoliangliang/think-layui-admin/tree/master/autocode  
+linux下使用./autocode即可  
 ## 自行编译  
 go build  
 or  
